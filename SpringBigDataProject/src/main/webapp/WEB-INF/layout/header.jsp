@@ -18,7 +18,7 @@
 								<li><a href="#">서점별 베스트</a></li>
 								<li><a href="#">감성 서적 추천</a></li>
 								<li><a href="#">서적별 종합 통계</a></li>
-								<li><a href="#">자료실</a></li>
+								<li><a href="databoard_list.do">자료실</a></li>
 								<li><a href="board_list.do">묻고답하기</a></li>
 							</ul>
 						</nav>

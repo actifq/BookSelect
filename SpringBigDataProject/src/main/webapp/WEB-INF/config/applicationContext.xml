@@ -15,61 +15,54 @@
     <context:component-scan base-package="com.sist.*"/>
     <util:properties id="db" location="/WEB-INF/config/db.properties"/>
     <bean id="ds"
-    	class="org.apache.commons.dbcp.BasicDataSource"
-    	p:driverClassName="#{db['driver']}"
-    	p:url="#{db['url']}"
-    	p:username="#{db['username']}"
-    	p:password="#{db['password']}"
+       class="org.apache.commons.dbcp.BasicDataSource"
+       p:driverClassName="#{db['driver']}"
+       p:url="#{db['url']}"
+       p:username="#{db['username']}"
+       p:password="#{db['password']}"
     />
     <bean id="transactionManager"
-    	class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
-    	p:dataSource-ref="ds"
+       class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+       p:dataSource-ref="ds"
     />
-	
-	<bean id="ssf"
-		class="org.mybatis.spring.SqlSessionFactoryBean"
-		p:dataSource-ref="ds"
-	/>
-	
-	<bean id="mapper"
-		class="org.mybatis.spring.mapper.MapperFactoryBean"
-		p:sqlSessionFactory-ref="ssf"
-		p:mapperInterface="com.sist.dao.databoard.DataBoardMapper"
-	/>
-	
-	<!-- 
-		@Before
-		public void insert(){
-			try{
-				conn.setAutoCommit(false);
-				INSERT (입고) error=>catch  ┐
-													  핵심 코딩
-				INSERT (재고) error=>catch  ┘
-				conn.commit();			==>@Around
-			}
-			catch(Exceiption ex){
-				conn.rollback();			==>@AfterThrowing
-			}
-			finally{
-				conn.setAutoCommit(true);			==>@After
-			}
-			return value; ==> @AfterReturnning
-		}
-	 -->
+    <bean id="ssf"
+        class="org.mybatis.spring.SqlSessionFactoryBean"
+        p:dataSource-ref="ds"
+    />
+    <bean id="mapper"
+       class="org.mybatis.spring.mapper.MapperFactoryBean"
+       p:sqlSessionFactory-ref="ssf"
+       p:mapperInterface="com.sist.dao.databoard.DataBoardMapper"
+    />
+    <!-- 
+         @Before
+         public String insert()
+         {
+            try
+            {
+                conn.setAutoCommit(false);
+                INSERT (입고) error=>catch
+                INSERT (재고) error=>catch
+                conn.commit();      ==> @Around
+            }catch(Exception ex)
+            {
+                conn.rollback(); ==> @AfterThrowing
+            }
+            finally
+            {
+                conn.setAutoCommit(true); ==> @After
+            }
+            return value; ==> @AfterReturning
+         }
     
+     -->
     <bean id="viewResolver" 
        class="org.springframework.web.servlet.view.UrlBasedViewResolver"
        p:requestContextAttribute="requestContext"
        p:viewClass="org.springframework.web.servlet.view.tiles2.TilesView"
     />
-    
     <bean id="tilesConfigurer"
        class="org.springframework.web.servlet.view.tiles2.TilesConfigurer"
        p:definitions="/WEB-INF/tiles.xml"
     />
-    
-  
-    
-    
-    
 </beans>
