@@ -53,6 +53,7 @@ $(function(){
 <body>
   <center>
     <h3>±Û¾²±â</h3>
+        <br/><br/><br/><br/>
     <form method=post action="board_insert_ok.do" id="frm">
     
           <table id="table_content">

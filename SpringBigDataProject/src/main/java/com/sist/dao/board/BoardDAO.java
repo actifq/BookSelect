@@ -180,8 +180,161 @@ public class BoardDAO {
     	}
     	return bCheck;
     }
+    // 답변 
+    public void boardReply(int pno,BoardVO vo)
+    {
+    	try
+    	{
+    		// pno=>gi,gs,gt
+    		BasicDBObject where=
+    				new BasicDBObject("no",pno);
+    		//where.put("no", pno); // WHERE, no=pno , {no:pno값}
+    		//  db.board.find({no:1})
+    		// BasicDBObject ==> {no:1,name....}
+    		BasicDBObject pObj=(BasicDBObject)dbc.findOne(where);
+    		int gi=pObj.getInt("group_id");
+    		int gs=pObj.getInt("group_step");
+    		int gt=pObj.getInt("group_tab");
+    		int depth=pObj.getInt("depth");
+    		// WHERE group_id=gi AND group_step>gs
+    		// gs증가
+    		BasicDBObject[] temp={
+    			new BasicDBObject("group_id",gi),
+    			new BasicDBObject("group_step",new BasicDBObject("$gt",gs))
+    		};
+    		BasicDBObject where2=new BasicDBObject("$and",temp);
+    		DBCursor cursor=dbc.find(where2);
+    		while(cursor.hasNext())
+    		{
+    			BasicDBObject obj=(BasicDBObject)cursor.next();
+    			int no=obj.getInt("no");
+    			int group_step=obj.getInt("group_step");
+    			BasicDBObject up=new BasicDBObject();
+    			up.put("no",no);
+    			dbc.update(up, new BasicDBObject("$set",new BasicDBObject("group_step",group_step+1)));
+    		}
+    		cursor.close();
+    		// insert
+    		cursor=dbc.find();
+    		//cursor.max(new BasicDBObject("no", cursor));
+    		int no=0;
+    		while(cursor.hasNext())
+    		{
+    			BasicDBObject obj=(BasicDBObject)cursor.next();
+    			int n=obj.getInt("no");
+    			if(no<n)
+    				no=n;
+    		}
+    		cursor.close();
+    		// Sequence 
+    		
+    		// {no:1,name:"",....}
+    		BasicDBObject query=
+    				new BasicDBObject();
+    		query.put("no", no+1);
+    		query.put("name", vo.getName());
+    		query.put("subject", vo.getSubject());
+    		query.put("content", vo.getContent());
+    		query.put("pwd", vo.getPwd());
+    		query.put("regdate", new SimpleDateFormat("yyyy-MM-dd").
+    				               format(new Date()));
+    		query.put("hit", 0);
+    		query.put("group_id", gi);
+    		query.put("group_step", gs+1);
+    		query.put("group_tab", gt+1);
+    		query.put("root", pno);
+    		query.put("depth", 0);
+    		
+    		dbc.insert(query);
+    		// depth증가 
+    		
+    		BasicDBObject pup=new BasicDBObject();
+    		pup.put("depth", depth+1);
+    		dbc.update(where, new BasicDBObject("$set",pup));
+    		
+    	}catch(Exception ex)
+    	{
+    		System.out.println(ex.getMessage());
+    	}
+    }
+    
+    public boolean boardDelete(int no, String pwd){
+    	boolean bCheck=false;
+    	try{
+    		//pwd check
+    		BasicDBObject where=new BasicDBObject();
+    		where.put("no", no);
+    		BasicDBObject data=(BasicDBObject)dbc.findOne(where);
+    		String db_pwd=data.getString("pwd");
+    		int depth=data.getInt("depth");
+    		int root=data.getInt("root");
+    		
+    		if(pwd.equals(db_pwd)){
+    			bCheck=true;
+    			if(depth==0){
+    				dbc.remove(where);
+    			}
+    			else{
+    				BasicDBObject up=new BasicDBObject();
+    				up.put("subject", "관리자가 삭제한 게시물 입니다.");
+    				up.put("content", "관리자가 삭제한 게시물 입니다.");
+    				dbc.update(where, new BasicDBObject("$set",up));
+    			}
+    			
+    			BasicDBObject where2=new BasicDBObject();
+    			where2.put("no", root);
+    			/*												no		root		depth
+    			 * aaa										1			0  			1				
+    			 * 		=> bbb								2			1			1
+    			 * 				=> cccc						3			2			0
+    			 */
+    			BasicDBObject pObj=(BasicDBObject)dbc.findOne(where2);
+    			int d=pObj.getInt("depth");
+    			BasicDBObject pup=new BasicDBObject();
+    			pup.put("detph", d-1);
+    			dbc.update(where2, new BasicDBObject("$set",pup));
+    		}
+    		
+    		else{
+    			bCheck=false;
+    		}
+    			
+    		
+    		//depth check
+    		//depth 감소
+    	}catch(Exception ex){
+    		System.out.println(ex.getMessage());
+    	}
+    	return bCheck;
+    }
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

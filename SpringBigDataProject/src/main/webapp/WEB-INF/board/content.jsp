@@ -10,6 +10,7 @@
 <body>
   <center>
     <h3>내용보기</h3>
+    <br/><br/><br/><br/>
     <table id="table_content">
       <tr height=27>
         <th width=20%>번호</th>
